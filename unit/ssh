@@ -28,7 +28,7 @@
 unit_ssh_prep()
 {
     if `dpkg -l openssh-server 1>/dev/null 2>&1` || `rpm -q openssh-server 1>/dev/null 2>&1`; then
-        rm -f /etc/ssh/ssh_host_*
+        rm -f /etc/ssh/ssh_host_*_key*
     fi
 }
 
