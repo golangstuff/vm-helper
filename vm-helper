@@ -1,0 +1,191 @@
+#!/bin/sh
+# vm-helper: virtual machine template helper
+#
+# The MIT License (MIT)
+#
+# Copyright (c) 2014 Aron Xu <aron@debian.org>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+
+UNIT_ENABLE=/etc/vm-helper/unit
+UNIT_AVAIL=/usr/share/vm-helper/unit
+
+CMD_ARG0=$0
+CMD_ARG1=$1
+CMD_ARG2=$2
+CMD_NAME=$(basename $CMD_ARG0)
+
+RUN_PARTS=`which run-parts`
+LOGGER="logger -t $CMD_NAME"
+
+check_root ()
+{
+    if [ "$(id -u)" != "0" ]; then
+        printf "Action \"$CMD_ARG1\" requires root priviledge.\n" 1>&2
+        exit 1
+    fi
+}
+
+check_none_interactive ()
+{
+    if ! [ -z "$PS1" ]; then
+        printf "Action \"$CMD_ARG1\" should not be called in interactive shell.\n"
+        exit 1
+    fi
+}
+
+run_setup ()
+{
+    check_root
+    exec_units prep
+    touch /etc/deploy-not-completed
+    $LOGGER "Setup completed."
+}
+
+run_deploy ()
+{
+    check_root
+    if [ -f /etc/deploy-not-completed ]; then
+        exec_units deploy
+        rm -f /etc/deploy-not-completed
+        $LOGGER "Deployment completed."
+    fi
+}
+
+run_startup ()
+{
+    check_none_interactive
+    run_deploy
+    $LOGGER "System startup tasks completed."
+}
+
+toggle_unit ()
+{
+    case $1 in
+        enable )
+            if [ -e ${UNIT_AVAIL}/$2 ]; then
+                rm -f ${UNIT_ENABLE}/$2
+                ln -s ${UNIT_AVAIL}/$2 ${UNIT_ENABLE}/$2
+                chmod 0755 ${UNIT_ENABLE}/$2
+            else
+                printf "$2 is not a valid unit.\n"
+                exit 1
+            fi
+            ;;
+        disable )
+            if [ -e ${UNIT_ENABLE}/$2 ]; then
+                rm -f ${UNIT_ENABLE}/$2
+            else
+                printf "$2 is not a valid unit.\n"
+                exit 1
+            fi
+            ;;
+        * )
+            printf "toggle_unit: Argument required, possible values:\n enable disable\n"
+            exit 1
+            ;;
+    esac
+}
+
+exec_units ()
+{
+    case $1 in
+        deploy|prep )
+            $RUN_PARTS -a $1 ${UNIT_ENABLE}
+            ;;
+        * )
+            printf "exec_units: Argument required, possible values:\n deploy prep\n"
+            return 1
+            ;;
+    esac
+}
+
+show_units ()
+{
+    local CALL_TYPE
+    local CALL_TEXT
+    case $1 in
+        enabled )
+            CALL_TYPE=$UNIT_ENABLE
+            CALL_TEXT=UNIT_ENABLE
+            ;;
+        available )
+            CALL_TYPE=$UNIT_AVAIL
+            CALL_TEXT=UNIT_AVAIL
+            ;;
+        list-enabled )
+            CALL_TYPE=$UNIT_ENABLE
+            CALL_TEXT=none
+            ;;
+        list-available )
+            CALL_TYPE=$UNIT_AVAIL
+            CALL_TEXT=none
+            ;;
+        * )
+            printf "show_units: Argument required, possible values:\n enabled available list-enabled list-available\n"
+            return 1
+            ;;
+    esac
+
+    local UNIT_LIST
+    for i in `$RUN_PARTS --test ${CALL_TYPE}`; do
+        UNIT_LIST=$UNIT_LIST"`basename $i .unit` "
+    done
+
+    if [ "$CALL_TEXT" = "none" ]; then
+        printf "$UNIT_LIST\n"
+    else
+        export ${CALL_TEXT}_LIST="$UNIT_LIST"
+    fi
+}
+
+show_usage ()
+{
+    printf "Usage: $CMD_NAME setup|deploy|list|list-available|enable|disable|help\n"
+}
+
+# Execution starts
+
+case $CMD_ARG1 in
+    system-startup )
+        run_startup
+        ;;
+    setup )
+        run_setup
+        ;;
+    deploy )
+        run_deploy
+        ;;
+    list )
+        show_units list-enabled
+        ;;
+    list-available )
+        show_units list-available
+        ;;
+    enable )
+        toggle_unit enable $CMD_ARG2
+        ;;
+    disable )
+        toggle_unit disable $CMD_ARG2
+        ;;
+    * )
+        show_usage
+        ;;
+esac
