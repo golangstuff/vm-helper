@@ -50,6 +50,6 @@ case $1 in
         unit_ssh_prep
         ;;
     *)
-        printf "unit_ssh: argument required, possible values: deploy prep\n"
+        printf "unit_ssh: Argument required, possible values:\n deploy prep\n"
         ;;
 esac
