@@ -71,7 +71,7 @@ gen_hosts()
     local DEFAULTGW_IPV4_ADDR="`ip addr show $DEFAULTGW_IPV4_DEV | grep "inet " | awk '{ print $2 }' | cut -d '/' -f1`"
     if [ -z "$DEFAULTGW_IPV4_ADDR" ]; then
         printf "W: unit_hostname: gen_hosts: No valid IPv4 default gateway, ignoring.\n"
-        local HOSTS_IPV4_CUSTOM=""
+        local HOSTS_IPV4_CUSTOM="\n\n"
     else
         local HOSTS_IPV4_CUSTOM="\n$DEFAULTGW_IPV4_ADDR       $HOSTNAME\n"
     fi
