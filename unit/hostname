@@ -79,11 +79,6 @@ gen_hosts()
     HOSTS_VALUE=${HOSTS_IPV4_DEFAULT}${HOSTS_IPV4_CUSTOM}${HOSTS_IPV6_DEFAULT}${HOSTS_IPV6_CUSTOM}
 }
 
-unit_hostname_prep ()
-{
-    printf "W: unit_hostname: Doing nothing for prep.\n"
-}
-
 unit_hostname_deploy ()
 {
     gen_hostname
@@ -98,7 +93,7 @@ case $1 in
         unit_hostname_deploy
         ;;
     prep)
-        unit_hostname_prep
+        unit_hostname_deploy
         ;;
     *)
         printf "unit_ssh: Argument required, possible values:\n deploy prep\n"
