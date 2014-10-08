@@ -24,8 +24,10 @@
 # SOFTWARE.
 #
 
-UNIT_ENABLE=/etc/vm-helper/unit
-UNIT_AVAIL=/usr/share/vm-helper/unit
+CONF_ROOT=/etc/vm-helper
+DATA_ROOT=/usr/share/vm-helper
+UNIT_ENABLE=${CONF_ROOT}/unit
+UNIT_AVAIL=${DATA_ROOT}/unit
 
 CMD_ARG0=$0
 CMD_ARG1=$1
@@ -55,16 +57,16 @@ run_setup ()
 {
     check_root
     exec_units prep
-    touch /etc/deploy-not-completed
+    touch /etc/vm-helper/deploy-not-completed
     $LOGGER "Setup completed."
 }
 
 run_deploy ()
 {
     check_root
-    if [ -f /etc/deploy-not-completed ]; then
+    if [ -f /etc/vm-helper/deploy-not-completed ]; then
         exec_units deploy
-        rm -f /etc/deploy-not-completed
+        rm -f /etc/vm-helper/deploy-not-completed
         $LOGGER "Deployment completed."
     fi
 }
