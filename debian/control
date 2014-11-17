@@ -8,8 +8,7 @@ Homepage: https://github.com/happyaron/vm-helper
 
 Package: vm-helper
 Architecture: all
-Depends: auditd
-         xz-utils,
+Depends: auditd,
          byobu,
          fail2ban,
          iptraf-ng,
@@ -21,6 +20,7 @@ Depends: auditd
          systemd-sysv,
          unattended-upgrades,
          vim,
+         xz-utils,
          ${misc:Depends}
 Description: virtual machine template helper
  This is set of simple virtual machine template helper scripts that helps
