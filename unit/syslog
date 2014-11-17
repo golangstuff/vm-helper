@@ -1,6 +1,6 @@
 #!/bin/sh
-# ssh unit for vm-helper
-# Remove SSH server keys and generate new ones on first boot
+# syslog unit for vm-helper
+# Handling of logrotate and removal of unwanted log files
 #
 # The MIT License (MIT)
 #
