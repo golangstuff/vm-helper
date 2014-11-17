@@ -1,0 +1,4 @@
+Unit files are scripts or any executables that are to be executed
+by vm-helper when certain circumstance are met. When an unit file
+is called, command line argument `deploy' will be called for every
+system start, and `prep' will only be called for template setup.
