@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+
+helper_unit_disable ()
+{
+UNIT_LIST=$(vm-helper list)
+
+for i in $UNIT_LIST; do
+	vm-helper disable $i;
+done
+}
+
+case "$1" in
+	configure)
+		helper_unit_disable
+		;;
+	abort-upgrade|abort-remove|abort-deconfigure)
+		;;
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1
+		;;
+esac

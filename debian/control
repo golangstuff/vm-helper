@@ -1,0 +1,28 @@
+Source: vm-helper
+Section: utils
+Priority: optional
+Maintainer: Aron Xu <aron@debian.org>
+Build-Depends: debhelper (>= 9), dh-systemd
+Standards-Version: 3.9.6
+Homepage: https://github.com/happyaron/vm-helper
+
+Package: vm-helper
+Architecture: all
+Depends: auditd
+         xz-utils,
+         byobu,
+         fail2ban,
+         iptraf-ng,
+         mtr-tiny,
+         rsync,
+         selinux-basics,
+         selinux-policy-default,
+         ssh,
+         systemd-sysv,
+         unattended-upgrades,
+         vim,
+         ${misc:Depends}
+Description: virtual machine template helper
+ This is set of simple virtual machine template helper scripts that helps
+ on the automation of several set-up works of a virtual machine after its
+ provision.

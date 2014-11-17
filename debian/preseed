@@ -1,0 +1,4 @@
+tzdata  tzdata/Areas    select  Asia
+tzdata  tzdata/Zones/Asia       select  Shanghai
+
+unattended-upgrades     unattended-upgrades/enable_auto_updates boolean true

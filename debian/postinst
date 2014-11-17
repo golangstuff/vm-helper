@@ -1,0 +1,37 @@
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+
+helper_preseed ()
+{
+PRESEED_FILE=/usr/share/vm-helper/preseed
+PRESEED_PKGS=$(cat ${PRESEED_FILE} | awk '{ print $1; }' | sed /^$/d | sort | uniq | tr '\n' ' ')
+
+if [ -x /usr/bin/debconf-set-selections ]; then
+	debconf-set-selections $PRESEED_FILE;
+	dpkg-reconfigure -pcritical $PRESEED_PKGS;
+fi
+}
+
+helper_unit_all ()
+{
+UNIT_LIST=$(vm-helper list-available)
+
+for i in $UNIT_LIST; do
+	vm-helper enable $i;
+done
+}
+
+case "$1" in
+	configure)
+		helper_preseed
+		helper_unit_all
+		;;
+	abort-upgrade|abort-remove|abort-deconfigure)
+		;;
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1
+		;;
+esac
