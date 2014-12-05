@@ -9,6 +9,7 @@ Homepage: https://github.com/happyaron/vm-helper
 Package: vm-helper
 Architecture: all
 Depends: auditd,
+         btrfs-tools,
          byobu,
          fail2ban,
          iptraf-ng,
