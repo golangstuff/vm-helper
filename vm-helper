@@ -74,7 +74,7 @@ run_deploy ()
 
 run_startup ()
 {
-    check_none_interactive
+    #check_none_interactive
     run_deploy
     $LOGGER "System startup tasks completed."
 }
