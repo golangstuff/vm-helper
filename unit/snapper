@@ -36,19 +36,20 @@ fi
 
 snap_dir2subvol ()
 {
-    if [ ! -d $1 ]; then
-        btrfs subvol create $1
-    elif ! btrfs subvol list / | grep $1 > /dev/null; then
-        mv $1 $1.bak
-        btrfs subvol create $1
-        cp -r $1.bak/* $1/ && rm -rf $1.bak
+    local DIRNAME=$1
+    if [ ! -d $DIRNAME ]; then
+        btrfs subvol create $DIRNAME
+    elif ! btrfs subvol list / | grep $DIRNAME > /dev/null; then
+        mv $DIRNAME ${DIRNAME}.bak
+        btrfs subvol create $DIRNAME
+        cp -r ${DIRNAME}.bak/* $DIRNAME/ && rm -rf ${DIRNAME}.bak
     fi
 }
 
 unit_snapper_prep()
 {
     for i in $SUBVOL_LIST; do
-        snap_dir2subvol($i)
+        snap_dir2subvol $i
     done
     for i in $SNAPPER_CONF_LIST; do
         snapper -c $i create-config
