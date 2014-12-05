@@ -13,13 +13,14 @@ done
 }
 
 case "$1" in
-	configure)
+	remove|purge)
 		helper_unit_disable
+		rm -f /etc/vm-helper/deploy-not-completed
 		;;
-	abort-upgrade|abort-remove|abort-deconfigure)
+	upgrade|abort-upgrade|abort-remove|abort-deconfigure)
 		;;
 	*)
-		echo "postinst called with unknown argument \`$1'" >&2
+		echo "prerm called with unknown argument \`$1'" >&2
 		exit 1
 		;;
 esac
