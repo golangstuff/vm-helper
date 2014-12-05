@@ -45,6 +45,7 @@ unit_selinux_prep()
 unit_selinux_deploy ()
 {
     unit_selinux_common
+    chmod 0400 /proc/kallsyms
 
     if `which selinuxenabled > /dev/null`; then
         if `selinuxenable`; then
