@@ -1,0 +1,81 @@
+#!/bin/sh
+# snapper unit for vm-helper
+# Configure snapper for filesystem snapshots
+#
+# The MIT License (MIT)
+#
+# Copyright (c) 2014 Aron Xu <aron@debian.org>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+
+SUBVOL_LIST="/ /var/www /var/lib"
+SNAPPER_CONF_LIST="root var_www var_lib"
+
+set -e
+
+if ! mount | grep '/ ' | grep btrfs > /dev/null; then
+    exit 0
+fi
+
+snap_dir2subvol ()
+{
+    if [ ! -d $1 ]; then
+        btrfs subvol create $1
+    elif ! btrfs subvol list / | grep $1 > /dev/null; then
+        mv $1 $1.bak
+        btrfs subvol create $1
+        cp -r $1.bak/* $1/ && rm -rf $1.bak
+    fi
+}
+
+unit_snapper_prep()
+{
+    for i in $SUBVOL_LIST; do
+        snap_dir2subvol($i)
+    done
+    for i in $SNAPPER_CONF_LIST; do
+        snapper -c $i create-config
+    done
+
+    snapper -c root set-config \
+      NUMBER_LIMIT=20 \
+      TIMELINE_LIMIT_HOURLY=2 \
+      TIMELINE_LIMIT_DAILY=10 \
+      TIMELINE_LIMIT_MONTHLY=4 \
+      TIMELINE_LIMIT_YEARLY=2
+}
+
+unit_snapper_deploy ()
+{
+    unit_snapper_prep
+}
+
+# Execution starts
+case $1 in
+    deploy)
+        unit_snapper_deploy
+        ;;
+    prep)
+        unit_snapper_prep
+        ;;
+    *)
+        printf "unit_snapper: Argument required, possible values:\n deploy prep\n"
+        ;;
+esac
