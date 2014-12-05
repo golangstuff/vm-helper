@@ -1,5 +1,6 @@
-README.unit /etc/vm-helper/unit/
-debian/preseed /usr/share/vm-helper/
+README.unit etc/vm-helper/unit/
+data/* etc/vm-helper/data
+debian/preseed usr/share/vm-helper/
 unit/* usr/share/vm-helper/unit/
 vm-helper usr/sbin/
-vm-helper.service /lib/systemd/system/
+vm-helper.service lib/systemd/system/

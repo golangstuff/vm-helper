@@ -26,6 +26,7 @@
 
 export CONF_ROOT=/etc/vm-helper
 export DATA_ROOT=/usr/share/vm-helper
+export CONF_DATA=${CONF_ROOT}/seeds
 UNIT_ENABLE=${CONF_ROOT}/unit
 UNIT_AVAIL=${DATA_ROOT}/unit
 

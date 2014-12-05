@@ -27,6 +27,18 @@
 
 HOSTNAME_DEFAULT=debian
 
+CONF_DATA_FILE=/etc/vm-helper/seeds/$0
+if ! [ -z $CONF_DATA ]; then
+    CONF_DATA_FILE=$CONF_DATA/$0
+fi
+
+OPTS_AVAIL="HOSTNAME_FALLBACK HOSTS_IPV4_ADD1 HOSTS_IPV4_ADD2"
+if [ -r $CONF_DATA_FILE ]; then
+    HOSTNAME_FALLBACK=$(grep '^HOSTNAME_FALLBACK=' $CONF_DATA_FILE | cut -f2 -d'=')
+    HOSTS_IPV4_ADD1=$(grep '^HOSTS_IPV4_ADD1=' $CONF_DATA_FILE | cut -f2 -d'=')
+    HOSTS_IPV4_ADD2=$(grep '^HOSTS_IPV4_ADD2=' $CONF_DATA_FILE | cut -f2 -d'=')
+fi
+
 HOSTS_IPV4_DEFAULT="127.0.0.1       localhost"
 HOSTS_IPV6_DEFAULT="
 # The following lines are desirable for IPv6 capable hosts
@@ -42,6 +54,9 @@ gen_hostname ()
         if `which hostname`; then
             HOSTNAME=`hostname`
             printf "W: unit_hostname: /etc/hostname not found, using hostname output: $HOSTNAME\n"
+        elif [ ! -z "$HOSTNAME_FALLBACK" ]; then
+            HOSTNAME=$HOSTNAME_FALLBACK
+            printf "W: unit_hostname: /etc/hostname not found, using fallback value: $HOSTNAME\n"
         else
             HOSTNAME=$HOSTNAME_DEFAULT
             printf "W: unit_hostname: /etc/hostname not found, using preset value: $HOSTNAME\n"
@@ -76,7 +91,7 @@ gen_hosts()
         local HOSTS_IPV4_CUSTOM="\n$DEFAULTGW_IPV4_ADDR       $HOSTNAME\n"
     fi
 
-    HOSTS_VALUE=${HOSTS_IPV4_DEFAULT}${HOSTS_IPV4_CUSTOM}${HOSTS_IPV6_DEFAULT}${HOSTS_IPV6_CUSTOM}
+    HOSTS_VALUE=${HOSTS_IPV4_DEFAULT}\n${HOSTS_IPV4_ADD1}\n${HOSTS_IPV4_ADD2}${HOSTS_IPV4_CUSTOM}${HOSTS_IPV6_DEFAULT}${HOSTS_IPV6_CUSTOM}
 }
 
 unit_hostname_deploy ()
