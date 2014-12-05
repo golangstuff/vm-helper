@@ -26,7 +26,6 @@
 #
 
 SUBVOL_LIST="/ /var/www /var/lib"
-SNAPPER_CONF_LIST="root var_www var_lib"
 
 set -e
 
@@ -50,9 +49,12 @@ unit_snapper_prep()
 {
     for i in $SUBVOL_LIST; do
         snap_dir2subvol $i
-    done
-    for i in $SNAPPER_CONF_LIST; do
-        snapper -c $i create-config
+        if [ "$i" = "/" ]; then
+            local SNAP_CONF=root
+        else
+            local SNAP_CONF=$(echo $i | sed 's/^\///;s/\//_/')
+        fi
+        snapper -c $SNAP_CONF create-config $i
     done
 
     snapper -c root set-config \
