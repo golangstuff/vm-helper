@@ -27,8 +27,6 @@
 
 SUBVOL_LIST="/ /var/www /var/lib"
 
-set -e
-
 if ! mount | grep '/ ' | grep btrfs > /dev/null; then
     exit 0
 fi
@@ -67,7 +65,7 @@ unit_snapper_prep()
 
 unit_snapper_deploy ()
 {
-    unit_snapper_prep
+    printf "I: unit_snapper: enabled.\n"
 }
 
 # Execution starts
@@ -82,3 +80,5 @@ case $1 in
         printf "unit_snapper: Argument required, possible values:\n deploy prep\n"
         ;;
 esac
+
+exit 0
