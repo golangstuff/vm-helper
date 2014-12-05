@@ -28,7 +28,7 @@
 unit_selinux_common ()
 {
     if `which selinux-activate > /dev/null`; then
-        if ! `grep '^FSCKFIX' /etc/default/rcS`; then
+        if ! `grep '^FSCKFIX' /etc/default/rcS > /dev/null`; then
             echo "FSCKFIX=yes" >> /etc/default/rcS
         fi
     fi
@@ -48,7 +48,7 @@ unit_selinux_deploy ()
     chmod 0400 /proc/kallsyms
 
     if `which selinuxenabled > /dev/null`; then
-        if `selinuxenable`; then
+        if `selinuxenabled`; then
             local SE_MODE=`getenforcing`
             if [ "$SE_MODE" = "Enforcing" ]; then
                 printf "I: unit_selinux: SELinux enabled, current mode $SE_MODE.\n"
