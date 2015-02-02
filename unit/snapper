@@ -35,7 +35,7 @@ snap_dir2subvol ()
 {
     local DIR_NAME=$1
     if [ "$DIR_NAME" = "/" ]; then
-        local DIR_FORGED=/
+        return;
     else
         local DIR_FORGED=$(echo $DIR_NAME | sed 's/^\///')
     fi
