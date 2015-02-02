@@ -34,9 +34,10 @@ unit_ssh_prep()
 
 unit_ssh_deploy ()
 {
+
     # For Debian based systems
-    if [ -x /usr/sbin/dpkg-reconfigure ]; then
-        dpkg-reconfigure openssh-server
+    if [ -x /usr/sbin/dpkg-reconfigure ] && [ ! -f /etc/ssh/ssh_host_*_key* ]; then
+        dpkg-reconfigure openssh-server &
     fi
 }
 
