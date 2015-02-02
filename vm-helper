@@ -54,9 +54,16 @@ check_none_interactive ()
     fi
 }
 
+enable_self ()
+{
+    systemctl --system daemon-reload >/dev/null
+    systemctl enable vm-helper.service
+}
+
 run_setup ()
 {
     check_root
+    enable_self
     exec_units prep
     touch /etc/vm-helper/deploy-not-completed
     $LOGGER "Setup completed."
