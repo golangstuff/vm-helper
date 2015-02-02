@@ -33,13 +33,19 @@ fi
 
 snap_dir2subvol ()
 {
-    local DIRNAME=$1
-    if [ ! -d $DIRNAME ]; then
-        btrfs subvol create $DIRNAME
-    elif ! btrfs subvol list / | grep $DIRNAME > /dev/null; then
-        mv $DIRNAME ${DIRNAME}.bak
-        btrfs subvol create $DIRNAME
-        cp -r ${DIRNAME}.bak/* $DIRNAME/ && rm -rf ${DIRNAME}.bak
+    local DIR_NAME=$1
+    if [ "$DIR_NAME" = "/" ]; then
+        local DIR_FORGED=/
+    else
+        local DIR_FORGED=$(echo $DIR_NAME | sed 's/^\///')
+    fi
+    if [ ! -d $DIR_NAME ]; then
+        btrfs subvol create $DIR_NAME
+    elif ! `btrfs subvol list / | grep $DIR_FORGED > /dev/null`; then
+        mv $DIR_NAME ${DIR_NAME}.bak
+        btrfs subvol create $DIR_NAME
+        [ -e ${DIR_NAME}.bak/* ] && cp -r ${DIR_NAME}.bak/* $DIR_NAME/ 
+        rm -rf ${DIR_NAME}.bak
     fi
 }
 
@@ -52,7 +58,9 @@ unit_snapper_prep()
         else
             local SNAP_CONF=$(echo $i | sed 's/^\///;s/\//_/')
         fi
-        snapper -c $SNAP_CONF create-config $i
+        if ! `snapper list-configs | grep $SNAP_CONF > /dev/null`; then
+            snapper -c $SNAP_CONF create-config $i
+        fi
     done
 
     snapper -c root set-config \
