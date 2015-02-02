@@ -44,8 +44,7 @@ snap_dir2subvol ()
     elif ! `btrfs subvol list / | grep $DIR_FORGED > /dev/null`; then
         mv $DIR_NAME ${DIR_NAME}.bak
         btrfs subvol create $DIR_NAME
-        [ -e ${DIR_NAME}.bak/* ] && cp -r ${DIR_NAME}.bak/* $DIR_NAME/ 
-        rm -rf ${DIR_NAME}.bak
+        cp -r ${DIR_NAME}.bak/* $DIR_NAME/ && rm -r ${DIR_NAME}.bak
     fi
 }
 
