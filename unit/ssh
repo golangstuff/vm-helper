@@ -34,10 +34,10 @@ unit_ssh_prep()
 
 unit_ssh_deploy ()
 {
-
+    local KEY_PATH=/etc/ssh/ssh_host_ecdsa_key
     # For Debian based systems
-    if [ -x /usr/sbin/dpkg-reconfigure ] && [ ! -f /etc/ssh/ssh_host_*_key* ]; then
-        dpkg-reconfigure openssh-server &
+    if `which dpkg-reconfigure >/dev/null 2>&1` && [ ! -s $KEY_PATH ]; then
+        dpkg-reconfigure openssh-server
     fi
 }
 
