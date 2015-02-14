@@ -31,8 +31,10 @@ unit_apt_prep ()
 {
     echo "unit_apt: enabled"
     if `which apt-get >/dev/null 2>&1`; then
-        apt-get update && eatmydata apt-get dist-upgrade -y
+        apt-get update
+        eatmydata apt-get dist-upgrade -y
         eatmydata apt-get autoremove
+        apt-get clean
     fi
 }
 
