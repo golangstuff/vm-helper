@@ -63,10 +63,12 @@ run_deploy ()
         printf "Action requires superuser priviledge.\n"
         exit 1
     fi
+
+    exec_units deploy
+
     if [ -f /etc/vm-helper/deploy-not-completed ]; then
-        exec_units deploy
         rm -f /etc/vm-helper/deploy-not-completed
-        syslog_logger "Deployment completed."
+        syslog_logger "First boot deployment completed."
     fi
 }
 
