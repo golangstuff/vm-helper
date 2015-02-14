@@ -25,7 +25,7 @@
 
 [Unit]
 Description=Virtual Machine Template Helper
-Before=ssh.service
+After=ssh.service
 
 [Service]
 Type=oneshot
