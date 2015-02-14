@@ -42,7 +42,7 @@ unit_ssh_deploy ()
     # For Debian based systems
     if `which dpkg-reconfigure >/dev/null 2>&1` && [ ! -s $KEY_PATH ]; then
         syslog_logger "I: unit_ssh: server key regeneration triggered"
-        dpkg-reconfigure openssh-server >/dev/null 2>&1 &
+        dpkg-reconfigure openssh-server >/dev/null 2>&1
     fi
 }
 
