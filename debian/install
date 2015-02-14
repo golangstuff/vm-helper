@@ -1,5 +1,6 @@
 README.unit etc/vm-helper/unit/
 data/* etc/vm-helper/data
+lib/* usr/share/vm-helper/lib
 sysconf/preseed usr/share/vm-helper/
 sysconf/vm-sysctl.conf etc/sysctl.d/
 sysconf/vm-unsafe-io etc/dpkg/dpkg.cfg.d/

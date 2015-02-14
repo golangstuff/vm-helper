@@ -25,27 +25,39 @@
 # SOFTWARE.
 #
 
+[ -s $DATA_ROOT/lib/helper-functions ] && . $DATA_ROOT/lib/helper-functions
+
 unit_syslog_prep ()
 {
-	if ! `grep xz /etc/logrotate.conf > /dev/null`; then
-		printf "compresscmd /usr/bin/xz\nuncompresscmd /usr/bin/unxz\ncompressext .xz" >> /etc/logrotate.conf
-	fi
+    echo "I: unit_syslog: enabled"
+    if ! `grep xz /etc/logrotate.conf > /dev/null`; then
+        printf "compresscmd /usr/bin/xz\nuncompresscmd /usr/bin/unxz\ncompressext .xz" >> /etc/logrotate.conf
+    fi
 
-	find /var/log -name *[0-9]* -delete
-        for i in messages syslog *.log; do
-            echo > $i;
-        done
+    find /var/log -name *[0-9]* -delete
+    for i in messages syslog *.log; do
+        echo > $i;
+    done
+}
+
+unit_syslog_deploy ()
+{
+    syslog_logger "I: unit_syslog: enabled"
 }
 
 # Execution starts
 case $1 in
     deploy)
-	# Currently do nothing
+	unit_syslog_deploy
         ;;
     prep)
         unit_syslog_prep
         ;;
     *)
-        printf "unit_syslog: Argument required, possible values:\n deploy prep\n"
+        if check_interactive; then
+            printf "unit_syslog: Argument required, possible values:\n deploy prep\n"
+        else
+            syslog_logger "E: unit_syslog: argument required"
+        fi
         ;;
 esac

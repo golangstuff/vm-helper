@@ -36,23 +36,8 @@ CMD_ARG2=$2
 CMD_NAME=$(basename $CMD_ARG0)
 
 RUN_PARTS=`which run-parts`
-LOGGER="logger -t $CMD_NAME"
 
-check_root ()
-{
-    if [ "$(id -u)" != "0" ]; then
-        printf "Action \"$CMD_ARG1\" requires root priviledge.\n" 1>&2
-        exit 1
-    fi
-}
-
-check_none_interactive ()
-{
-    if ! [ -z "$PS1" ]; then
-        printf "Action \"$CMD_ARG1\" should not be called in interactive shell.\n"
-        exit 1
-    fi
-}
+[ -s $DATA_ROOT/lib/helper-functions ] && . $DATA_ROOT/lib/helper-functions
 
 enable_self ()
 {
@@ -62,20 +47,26 @@ enable_self ()
 
 run_setup ()
 {
-    check_root
+    if ! check_root; then
+        printf "Action requires superuser priviledge.\n"
+        exit 1
+    fi
     enable_self
     exec_units prep
     touch /etc/vm-helper/deploy-not-completed
-    $LOGGER "Setup completed."
+    printf "Setup completed.\n"
 }
 
 run_deploy ()
 {
-    check_root
+    if ! check_root; then
+        printf "Action requires superuser priviledge.\n"
+        exit 1
+    fi
     if [ -f /etc/vm-helper/deploy-not-completed ]; then
         exec_units deploy
         rm -f /etc/vm-helper/deploy-not-completed
-        $LOGGER "Deployment completed."
+        syslog_logger "Deployment completed."
     fi
 }
 
@@ -83,7 +74,7 @@ run_startup ()
 {
     #check_none_interactive
     run_deploy
-    $LOGGER "System startup tasks completed."
+    syslog_logger "System startup tasks completed."
 }
 
 toggle_unit ()
@@ -108,7 +99,7 @@ toggle_unit ()
             fi
             ;;
         * )
-            printf "toggle_unit: Argument required, possible values:\n enable disable\n"
+            syslog_logger "E: toggle_unit: Argument required, possible values:\n enable disable\n"
             exit 1
             ;;
     esac
@@ -121,7 +112,7 @@ exec_units ()
             $RUN_PARTS -a $1 ${UNIT_ENABLE}
             ;;
         * )
-            printf "exec_units: Argument required, possible values:\n deploy prep\n"
+            syslog_logger "E: exec_units: Argument required, possible values:\n deploy prep\n"
             return 1
             ;;
     esac

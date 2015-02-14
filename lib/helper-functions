@@ -1,0 +1,29 @@
+syslog_logger ()
+{
+    if [ -n $CMD_NAME ]; then
+        LOGGER="logger -t $CMD_NAME"
+    else
+        LOGGER="logger -t vm-helper"
+    fi
+
+    $LOGGER $1
+    echo $1
+}
+
+check_root ()
+{
+    if [ "$(id -u)" = "0" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+check_interactive ()
+{
+    if [ -n $PS1 ]; then
+        return 0
+    else
+        return 1
+    fi
+}

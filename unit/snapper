@@ -25,6 +25,8 @@
 # SOFTWARE.
 #
 
+[ -s $DATA_ROOT/lib/helper-functions ] && . $DATA_ROOT/lib/helper-functions
+
 SUBVOL_LIST="/ /var/www /var/lib"
 
 if ! mount | grep '/ ' | grep btrfs > /dev/null; then
@@ -50,6 +52,7 @@ snap_dir2subvol ()
 
 unit_snapper_prep()
 {
+    echo "I: unit_snapper: enabled"
     for i in $SUBVOL_LIST; do
         snap_dir2subvol $i
         if [ "$i" = "/" ]; then
@@ -72,7 +75,7 @@ unit_snapper_prep()
 
 unit_snapper_deploy ()
 {
-    printf "I: unit_snapper: enabled.\n"
+    syslog_logger "I: unit_snapper: enabled"
 }
 
 # Execution starts
@@ -84,7 +87,11 @@ case $1 in
         unit_snapper_prep
         ;;
     *)
-        printf "unit_snapper: Argument required, possible values:\n deploy prep\n"
+        if check_interactive; then
+            printf "unit_snapper: Argument required, possible values:\n deploy prep\n"
+        else
+            syslog_logger "E: unit_snapper: argument required"
+        fi
         ;;
 esac
 

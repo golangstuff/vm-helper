@@ -25,23 +25,35 @@
 # SOFTWARE.
 #
 
+[ -s $DATA_ROOT/lib/helper-functions ] && . $DATA_ROOT/lib/helper-functions
+
 unit_apt_prep ()
 {
+    echo "unit_apt: enabled"
     if `which apt-get >/dev/null 2>&1`; then
         apt-get update && eatmydata apt-get dist-upgrade -y
         eatmydata apt-get autoremove
     fi
 }
 
+unit_apt_deploy ()
+{
+    syslog_logger "I: unit_apt: enabled"
+}
+
 # Execution starts
 case $1 in
     deploy)
-	# Currently do nothing
+	unit_apt_deploy
         ;;
     prep)
         unit_apt_prep
         ;;
     *)
-        printf "unit_apt: Argument required, possible values:\n deploy prep\n"
+        if check_interactive; then
+            printf "unit_apt: Argument required, possible values:\n deploy prep\n"
+        else
+            syslog_logger "E: unit_apt: argument required"
+        fi
         ;;
 esac
