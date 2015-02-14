@@ -48,19 +48,19 @@ enable_self ()
 run_setup ()
 {
     if ! check_root; then
-        printf "Action requires superuser priviledge.\n"
+        printf "E: Action requires superuser priviledge.\n"
         exit 1
     fi
     enable_self
     exec_units prep
     touch /etc/vm-helper/deploy-not-completed
-    printf "Setup completed.\n"
+    printf "I: Setup completed.\n"
 }
 
 run_deploy ()
 {
     if ! check_root; then
-        printf "Action requires superuser priviledge.\n"
+        printf "E: Action requires superuser priviledge.\n"
         exit 1
     fi
 
@@ -68,15 +68,14 @@ run_deploy ()
 
     if [ -f /etc/vm-helper/deploy-not-completed ]; then
         rm -f /etc/vm-helper/deploy-not-completed
-        syslog_logger "First boot deployment completed."
+        syslog_logger "I: First boot deployment completed."
     fi
 }
 
 run_startup ()
 {
-    #check_none_interactive
     run_deploy
-    syslog_logger "System startup tasks completed."
+    syslog_logger "I: System startup tasks completed."
 }
 
 toggle_unit ()
