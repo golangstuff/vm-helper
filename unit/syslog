@@ -32,6 +32,9 @@ unit_syslog_prep ()
 	fi
 
 	find /var/log -name *[0-9]* -delete
+        for i in messages syslog *.log; do
+            echo > $i;
+        done
 }
 
 # Execution starts
