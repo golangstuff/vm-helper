@@ -10,6 +10,7 @@ Package: vm-helper
 Architecture: all
 Depends: btrfs-tools,
          byobu,
+         eatmydata,
          fail2ban,
          iptraf-ng,
          mtr-tiny,

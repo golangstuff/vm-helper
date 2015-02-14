@@ -28,8 +28,8 @@
 unit_apt_prep ()
 {
     if `which apt-get >/dev/null 2>&1`; then
-        apt-get update && apt-get dist-upgrade -y
-        apt-get autoremove
+        apt-get update && eatmydata apt-get dist-upgrade -y
+        eatmydata apt-get autoremove
     fi
 }
 
