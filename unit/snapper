@@ -29,10 +29,6 @@
 
 SUBVOL_LIST="/ /var/www /var/lib"
 
-if ! mount | grep '/ ' | grep btrfs > /dev/null; then
-    exit 0
-fi
-
 snap_dir2subvol ()
 {
     local DIR_NAME=$1
@@ -50,8 +46,18 @@ snap_dir2subvol ()
     fi
 }
 
-unit_snapper_prep()
+unit_snapper_common ()
 {
+    if ! mount | grep '/ ' | grep btrfs > /dev/null; then
+        syslog_logger "I: unit_snapper: rootfs is not btrfs, do nothing"
+        exit 0
+    fi
+}
+
+unit_snapper_prep ()
+{
+    unit_snapper_common
+
     echo "I: unit_snapper: enabled"
     for i in $SUBVOL_LIST; do
         snap_dir2subvol $i
@@ -94,5 +100,3 @@ case $1 in
         fi
         ;;
 esac
-
-exit 0

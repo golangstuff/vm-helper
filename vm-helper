@@ -141,7 +141,7 @@ show_units ()
             CALL_TEXT=none
             ;;
         * )
-            printf "show_units: Argument required, possible values:\n enabled available list-enabled list-available\n"
+            printf "E: show_units: Argument required, possible values:\n enabled available list-enabled list-available\n"
             return 1
             ;;
     esac
