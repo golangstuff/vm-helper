@@ -25,6 +25,40 @@
 # SOFTWARE.
 #
 
+[ -s $DATA_ROOT/lib/helper-functions ] && . $DATA_ROOT/lib/helper-functions
+
+SELINUX_LOCAL=$CONF_DATA
+SELINUX_MODULE=vm_policy
+
+unit_selinux_audit2allow ()
+{
+    # This generates a Type Enforcement (.te) file as well as a binary
+    # Policy Package (.pp) file to be loaded (semodule -i).
+    #
+    # ausearch is used because some log may not appear in audit.log in time.
+    #
+    cd $SELINUX_LOCAL
+    ausearch -m avc | audit2allow -M $SELINUX_MODULE
+}
+
+unit_selinux_compile_te ()
+{
+    # Compile and package Type Enforcement file
+    #
+    cd $SELINUX_LOCAL
+    checkmodule -M -m -o ${SELINUX_MODULE}.mod ${SELINUX_MODULE}.te
+    semodule_package -o ${SELINUX_MODULE}.pp -m ${SELINUX_MODULE}.mod
+    rm -f ${SELINUX_MODULE}.mod
+}
+
+unit_selinux_load_pp ()
+{
+    # Load Policy Package module file
+    #
+    cd $SELINUX_LOCAL
+    semodule -i ${SELINUX_MODULE}.pp
+}
+
 unit_selinux_common ()
 {
     if `which selinux-activate > /dev/null`; then
@@ -37,6 +71,8 @@ unit_selinux_common ()
 unit_selinux_prep()
 {
     unit_selinux_common
+    unit_selinux_compile_te
+    unit_selinux_load_pp
 
     selinux-activate
     selinux-config-enforcing

@@ -1,0 +1,53 @@
+
+module vm_policy 1.0;
+
+require {
+	type unlabeled_t;
+	type kernel_t;
+	type user_home_dir_t;
+	type systemd_logind_t;
+	type httpd_t;
+	type fail2ban_client_t;
+	type var_log_t;
+	type crontab_t;
+	type crond_t;
+	type systemd_cgroups_t;
+	type initrc_var_run_t;
+	type var_t;
+	type tmpfs_t;
+	class unix_stream_socket connectto;
+	class capability fsetid;
+	class file { getattr read unlink open };
+	class sock_file { create unlink setattr };
+	class unix_dgram_socket sendto;
+	class dir { write rmdir read remove_name add_name };
+}
+
+#============= crond_t ==============
+
+allow crond_t unlabeled_t:file { read open };
+
+#============= crontab_t ==============
+
+allow crontab_t self:capability fsetid;
+allow crontab_t unlabeled_t:file { read getattr unlink open };
+allow crontab_t user_home_dir_t:dir { write remove_name add_name };
+
+#============= fail2ban_client_t ==============
+
+allow fail2ban_client_t var_log_t:dir read;
+
+#============= httpd_t ==============
+
+allow httpd_t initrc_var_run_t:file read;
+allow httpd_t var_t:file getattr;
+
+#============= systemd_cgroups_t ==============
+
+allow systemd_cgroups_t kernel_t:unix_dgram_socket sendto;
+allow systemd_cgroups_t kernel_t:unix_stream_socket connectto;
+
+#============= systemd_logind_t ==============
+
+allow systemd_logind_t tmpfs_t:dir { write remove_name rmdir };
+allow systemd_logind_t tmpfs_t:sock_file unlink;
