@@ -1,53 +1,63 @@
 
-module vm_policy 1.0;
+module local_policy 1.0;
 
 require {
 	type unlabeled_t;
-	type kernel_t;
-	type user_home_dir_t;
-	type systemd_logind_t;
-	type httpd_t;
-	type fail2ban_client_t;
+	type system_cronjob_t;
+	type user_home_t;
+	type sysctl_vm_t;
 	type var_log_t;
+	type httpd_log_t;
+	type systemd_passwd_agent_t;
+	type proc_t;
+	type kernel_t;
 	type crontab_t;
+	type systemd_logind_t;
+	type tmpfs_t;
+	type user_home_dir_t;
+	type backup_t;
 	type crond_t;
 	type systemd_cgroups_t;
 	type initrc_var_run_t;
 	type var_t;
-	type tmpfs_t;
+	type logrotate_systemctl_t;
+	type httpd_t;
 	class unix_stream_socket connectto;
-	class capability fsetid;
-	class file { getattr read unlink open };
+	class capability { net_admin fsetid };
+	class fd use;
+	class file { execute read ioctl execute_no_trans write getattr unlink open };
 	class sock_file { create unlink setattr };
 	class unix_dgram_socket sendto;
-	class dir { write rmdir read remove_name add_name };
+	class dir { write search rmdir read remove_name add_name };
 }
 
-#============= crond_t ==============
+#============= backup_t ==============
+allow backup_t self:capability fsetid;
 
-allow crond_t unlabeled_t:file { read open };
+#============= crond_t ==============
+allow crond_t unlabeled_t:file { read getattr open };
 
 #============= crontab_t ==============
-
 allow crontab_t self:capability fsetid;
 allow crontab_t unlabeled_t:file { read getattr unlink open };
 allow crontab_t user_home_dir_t:dir { write remove_name add_name };
 
-#============= fail2ban_client_t ==============
-
-allow fail2ban_client_t var_log_t:dir read;
-
 #============= httpd_t ==============
-
-allow httpd_t initrc_var_run_t:file read;
+allow httpd_t initrc_var_run_t:file { read open };
+allow httpd_t sysctl_vm_t:dir search;
+allow httpd_t sysctl_vm_t:file { read open };
 allow httpd_t var_t:file getattr;
 
-#============= systemd_cgroups_t ==============
+#============= logrotate_systemctl_t ==============
+allow logrotate_systemctl_t crond_t:fd use;
+allow logrotate_systemctl_t initrc_var_run_t:file read;
+allow logrotate_systemctl_t proc_t:file read;
+allow logrotate_systemctl_t system_cronjob_t:fd use;
 
+#============= systemd_cgroups_t ==============
 allow systemd_cgroups_t kernel_t:unix_dgram_socket sendto;
 allow systemd_cgroups_t kernel_t:unix_stream_socket connectto;
 
 #============= systemd_logind_t ==============
-
 allow systemd_logind_t tmpfs_t:dir { write remove_name rmdir };
 allow systemd_logind_t tmpfs_t:sock_file unlink;
