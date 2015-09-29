@@ -29,6 +29,7 @@
 
 SELINUX_LOCAL=$CONF_DATA
 SELINUX_MODULE=vm_policy
+SELINUX_BOOLEAN=${CONF_DATA}/selinux_boolean
 
 unit_selinux_audit2allow ()
 {
@@ -46,6 +47,10 @@ unit_selinux_compile_te ()
     # Compile and package Type Enforcement file
     #
     cd $SELINUX_LOCAL
+    if ! [ -s ${SELINUX_LOCAL}.te ]; then
+        echo "I: unit_selinux: no local policy found."
+        return
+    fi
     checkmodule -M -m -o ${SELINUX_MODULE}.mod ${SELINUX_MODULE}.te
     semodule_package -o ${SELINUX_MODULE}.pp -m ${SELINUX_MODULE}.mod
     rm -f ${SELINUX_MODULE}.mod
@@ -56,7 +61,19 @@ unit_selinux_load_pp ()
     # Load Policy Package module file
     #
     cd $SELINUX_LOCAL
+    if ! [ -s ${SELINUX_LOCAL}.pp ]; then
+        return
+    fi
     semodule -i ${SELINUX_MODULE}.pp
+}
+
+unit_selinux_load_boolean ()
+{
+    if ! [ -s ${SELINUX_BOOLEAN} } ]; then
+        echo "I: unit_selinux: no local boolean found."
+        return
+    fi
+    cat ${SELINUX_BOOLEAN} | while read i; do setsebool -P $i; done
 }
 
 unit_selinux_common ()
@@ -70,9 +87,11 @@ unit_selinux_common ()
 
 unit_selinux_prep()
 {
+    echo "I: unit_selinux: enabled"
     unit_selinux_common
     unit_selinux_compile_te
     unit_selinux_load_pp
+    unit_selinux_load_boolean
 
     selinux-activate
     selinux-config-enforcing
@@ -80,6 +99,7 @@ unit_selinux_prep()
 
 unit_selinux_deploy ()
 {
+    syslog_logger "I: unit_selinux: enabled"
     unit_selinux_common
     chmod 0400 /proc/kallsyms
 
