@@ -34,7 +34,7 @@ unit_syslog_prep ()
         printf "compresscmd /usr/bin/xz\nuncompresscmd /usr/bin/unxz\ncompressext .xz" >> /etc/logrotate.conf
     fi
 
-    find /var/log -name *[0-9]* -delete
+    find /var/log -type f -name "*[0-9]*" -delete
 
     for i in /var/log/messages /var/log/syslog /var/log/*.log; do
         echo > $i;
